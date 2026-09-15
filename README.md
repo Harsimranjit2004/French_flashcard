@@ -160,3 +160,4 @@ The portable build runs Vinext directly without a host `timeout` command. The ma
 # Flashcard
 # Flashcard
 # french_flashcard
+# french_flashcard
