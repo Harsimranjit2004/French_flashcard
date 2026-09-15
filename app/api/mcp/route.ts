@@ -8,7 +8,7 @@ import { apiKeys } from "../../../db/schema";
 import { loadSnapshot, saveSnapshot } from "../../../lib/snapshot-store";
 
 async function sha256(value:string){const bytes=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));return [...new Uint8Array(bytes)].map(b=>b.toString(16).padStart(2,"0")).join("")}
-async function authenticate(request:Request){const token=request.headers.get("authorization")?.replace(/^Bearer\s+/i,"");if(!token?.startsWith("lexique_sk_"))return null;const [key]=await getDb().select().from(apiKeys).where(and(eq(apiKeys.keyHash,await sha256(token)),isNull(apiKeys.revokedAt))).limit(1);if(!key)return null;await getDb().update(apiKeys).set({lastUsedAt:new Date().toISOString()}).where(eq(apiKeys.id,key.id));return key.userId}
+async function authenticate(request:Request){const token=request.headers.get("authorization")?.replace(/^Bearer\s+/i,"");if(!token?.startsWith("lexique_sk_"))return null;const [key]=await (await getDb()).select().from(apiKeys).where(and(eq(apiKeys.keyHash,await sha256(token)),isNull(apiKeys.revokedAt))).limit(1);if(!key)return null;await (await getDb()).update(apiKeys).set({lastUsedAt:new Date().toISOString()}).where(eq(apiKeys.id,key.id));return key.userId}
 async function load(userId:string){const payload=await loadSnapshot(userId);return payload?JSON.parse(payload):{notes:[],cards:[],logs:[],decks:[{id:"tef",name:"TEF essentiel",description:"TEF Canada vocabulary"}]}}
 async function save(userId:string,state:any){await saveSnapshot(userId,JSON.stringify(state))}
 const bare=(v:string)=>v.trim().toLowerCase().normalize("NFC").replace(/^(le|la|les|un|une|des|l’|l')\s*/i,"");

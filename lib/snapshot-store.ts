@@ -11,7 +11,7 @@ function supabaseConfig() {
 export async function loadSnapshot(userId: string) {
   const config = supabaseConfig();
   if (!config) {
-    const [row] = await getDb().select().from(userSnapshots).where(eq(userSnapshots.userId, userId)).limit(1);
+    const [row] = await (await getDb()).select().from(userSnapshots).where(eq(userSnapshots.userId, userId)).limit(1);
     return row?.payload ?? null;
   }
   const endpoint = new URL(`${config.url}/rest/v1/user_snapshots`);
@@ -28,7 +28,7 @@ export async function loadSnapshot(userId: string) {
 export async function saveSnapshot(userId: string, payload: string) {
   const config = supabaseConfig();
   if (!config) {
-    await getDb().insert(userSnapshots).values({ userId, payload, updatedAt: new Date().toISOString() }).onConflictDoUpdate({ target: userSnapshots.userId, set: { payload, updatedAt: new Date().toISOString() } });
+    await (await getDb()).insert(userSnapshots).values({ userId, payload, updatedAt: new Date().toISOString() }).onConflictDoUpdate({ target: userSnapshots.userId, set: { payload, updatedAt: new Date().toISOString() } });
     return;
   }
   const endpoint = new URL(`${config.url}/rest/v1/user_snapshots`);
